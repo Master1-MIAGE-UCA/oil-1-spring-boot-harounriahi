@@ -1,7 +1,7 @@
-package com.example.playerservice.Controller;
+package com.example.playerservice.controller;
 
-import com.example.playerservice.Entity.Player;
-import com.example.playerservice.Services.PlayerService;
+import com.example.playerservice.entity.Player;
+import com.example.playerservice.services.PlayerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;

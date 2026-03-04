@@ -1,4 +1,4 @@
-package com.example.playerservice.Entity;
+package com.example.playerservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

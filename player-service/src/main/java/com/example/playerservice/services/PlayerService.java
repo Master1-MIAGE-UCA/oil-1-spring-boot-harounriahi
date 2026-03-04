@@ -1,7 +1,7 @@
-package com.example.playerservice.Services;
+package com.example.playerservice.services;
 
-import com.example.playerservice.Entity.Player;
-import com.example.playerservice.Repository.PlayerRepository;
+import com.example.playerservice.entity.Player;
+import com.example.playerservice.repository.PlayerRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;

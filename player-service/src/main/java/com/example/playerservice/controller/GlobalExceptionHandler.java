@@ -1,4 +1,4 @@
-package com.example.playerservice.Controller;
+package com.example.playerservice.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
