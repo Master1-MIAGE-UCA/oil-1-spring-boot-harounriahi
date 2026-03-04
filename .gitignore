@@ -1,0 +1,7 @@
+temp_td1/
+.idea/
+*.class
+build/
+target/
+.gradle/
+bin/
