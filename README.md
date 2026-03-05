@@ -251,6 +251,22 @@ curl -X POST "http://localhost:8080/api/games/start/1?nb=3"
 ```
 
 ---
+## TD8 - WebSockets (Rooms / Private / Chat)
+
+### Dashboard
+- URL : http://localhost:8080/game.html
+
+### WebSocket endpoints
+- STOMP endpoint : /ws
+- Room topic : /topic/game/{gameId}
+- Private topic : /topic/player/{playerId}
+- Chat send : /app/chat/{gameId}
+
+### Demo attendue
+- Client A : gameId=partie-1, playerId=10
+- Client B : gameId=partie-1, playerId=20
+- Client C : gameId=partie-2, playerId=30
+- Test privé : POST /api/games/bonus/10 → seul A reçoit
 
 # Auteur
 

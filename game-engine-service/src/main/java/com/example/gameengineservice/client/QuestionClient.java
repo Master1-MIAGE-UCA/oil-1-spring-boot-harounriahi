@@ -13,11 +13,16 @@ public class QuestionClient {
     private final DiscoveryClient discoveryClient;
 
     private RestClient questionRestClient() {
+
         String baseUrl = discoveryClient.getServiceUrl("question-catalog-service");
-        return builder.baseUrl(baseUrl + "/api/questions").build();
+
+        return builder
+                .baseUrl(baseUrl + "/api/questions")
+                .build();
     }
 
     public QuestionDTO getRandomQuestion() {
+
         return questionRestClient()
                 .get()
                 .uri("/random")

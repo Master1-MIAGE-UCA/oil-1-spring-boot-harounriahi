@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>TD8 - Game Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>TD8 - WebSocket Dashboard</h2>
+
+<label>Game ID:</label>
+<input id="gameIdInput" value="partie-1" />
+
+<label>Player ID:</label>
+<input id="playerIdInput" value="10" />
+
+<button onclick="connect()">Connect</button>
+
+<hr/>
+
+<h3>Chat</h3>
+<input id="senderInput" value="Moi" />
+<input id="chatInput" placeholder="Ton message..." />
+<button onclick="sendChat()">Envoyer</button>
+
+<hr/>
+
+<h3>Events</h3>
+<ul id="events"></ul>
+
+<script>
+  let stompClient = null;
+
+  function connect() {
+    const gameId = document.getElementById("gameIdInput").value;
+    const playerId = document.getElementById("playerIdInput").value;
+
+    const socket = new SockJS("http://localhost:8080/ws");
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function(frame) {
+      log("✅ Connected: " + frame);
+
+      // ROOM
+      stompClient.subscribe("/topic/game/" + gameId, function(message) {
+        log("ROOM => " + message.body);
+      });
+
+      // PRIVATE
+      stompClient.subscribe("/topic/player/" + playerId, function(message) {
+        log("PRIVATE => " + message.body);
+      });
+    });
+  }
+
+  function sendChat() {
+    const gameId = document.getElementById("gameIdInput").value;
+    const sender = document.getElementById("senderInput").value;
+    const content = document.getElementById("chatInput").value;
+
+    const payload = { sender, content };
+
+    stompClient.send("/app/chat/" + gameId, {}, JSON.stringify(payload));
+    document.getElementById("chatInput").value = "";
+  }
+
+  function log(text) {
+    const li = document.createElement("li");
+    li.innerText = text;
+    document.getElementById("events").appendChild(li);
+  }
+</script>
+</body>
+</html>

@@ -19,6 +19,11 @@ public class QuestionController {
     public List<Question> getAllQuestions() {
         return questionService.getAllQuestions();
     }
+    @GetMapping("/random")
+    public ResponseEntity<Question> getRandomQuestion() {
+        Question randomQuestion = questionService.getRandomQuestion();
+        return ResponseEntity.ok(randomQuestion);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Question> getQuestionById(@PathVariable Long id) {

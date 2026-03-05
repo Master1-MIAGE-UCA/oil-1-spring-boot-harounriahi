@@ -14,16 +14,23 @@ public class GameController {
         this.gameService = gameService;
     }
 
+    // ▶️ Démarrer une partie
     @PostMapping("/start/{playerId}")
     public GameDTO startGame(@PathVariable Long playerId,
                              @RequestParam(defaultValue = "3") int nb) {
         return gameService.startNewGame(playerId, nb);
     }
 
-    // ✅ TD5: Fin de partie
+    // ▶️ Fin de partie (TD5)
     @PostMapping("/end")
     public void endGame(@RequestBody EndGameRequest request) {
         gameService.endGame(request.playerId(), request.score());
+    }
+
+    // ▶️ TD8 : message privé WebSocket
+    @PostMapping("/bonus/{playerId}")
+    public void sendBonus(@PathVariable Long playerId) {
+        gameService.sendPrivateMessage(playerId, "Bonus secret !");
     }
 
     public record EndGameRequest(Long playerId, int score) {}

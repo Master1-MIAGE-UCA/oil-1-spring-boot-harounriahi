@@ -13,13 +13,16 @@ public class ScoreClient {
     private final DiscoveryClient discoveryClient;
 
     private RestClient scoreRestClient() {
+
         String baseUrl = discoveryClient.getServiceUrl("score-service");
+
         return builder
                 .baseUrl(baseUrl + "/api/scores")
                 .build();
     }
 
     public void saveScore(ScoreDTO scoreDTO) {
+
         scoreRestClient()
                 .post()
                 .uri("/")

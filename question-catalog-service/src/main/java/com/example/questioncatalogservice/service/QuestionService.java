@@ -33,6 +33,14 @@ public class QuestionService {
         }
         questionRepository.deleteById(id);
     }
+    public Question getRandomQuestion() {
+        List<Question> questions = questionRepository.findAll();
+        if (questions.isEmpty()) {
+            throw new RuntimeException("No questions available");
+        }
+        int index = new java.util.Random().nextInt(questions.size());
+        return questions.get(index);
+    }
 
     public Question updateQuestion(Long id, Question newQuestion) {
         return questionRepository.findById(id)
