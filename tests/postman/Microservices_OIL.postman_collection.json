@@ -1,0 +1,394 @@
+{
+  "info": {
+    "_postman_id": "65d82272-2f61-4a66-abb2-8591aafe09e7",
+    "name": "Microservices_OIL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52340221",
+    "_collection_link": "https://go.postman.co/collection/52340221-65d82272-2f61-4a66-abb2-8591aafe09e7?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Player Service",
+      "item": [
+        {
+          "name": "GET all players",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time < 500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"Content type is JSON\", function () {",
+                  "    pm.response.to.have.header(\"Content-Type\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_player}}/api/players",
+              "host": [
+                "{{url_player}}"
+              ],
+              "path": [
+                "api",
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET player by id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time < 500ms\", () => {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is application/json\", () => {",
+                  "  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Returned id matches current_player_id\", () => {",
+                  "  const json = pm.response.json();",
+                  "  const expectedId = Number(pm.collectionVariables.get(\"current_player_id\"));",
+                  "  pm.expect(json.id).to.eql(expectedId);",
+                  "});",
+                  "",
+                  "pm.test(\"Body contains pseudo and score\", () => {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"pseudo\");",
+                  "  pm.expect(json).to.have.property(\"score\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_player}}/api/players/{{current_player_id}}",
+              "host": [
+                "{{url_player}}"
+              ],
+              "path": [
+                "api",
+                "players",
+                "{{current_player_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET player unknown (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", () => {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message returned\", () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url_player}}/api/players/99999",
+              "host": [
+                "{{url_player}}"
+              ],
+              "path": [
+                "api",
+                "players",
+                "99999"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST create player",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 200\", () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"current_player_id\", json.id);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"ts\", Date.now());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pseudo\": \"Haroun_{{ts}}\",\n  \"score\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_player}}/api/players",
+              "host": [
+                "{{url_player}}"
+              ],
+              "path": [
+                "api",
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST invalid player (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", () => {",
+                  "  pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message returned\", () => {",
+                  "  const text = pm.response.text();",
+                  "  pm.expect(text.length).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_player}}/api/players",
+              "host": [
+                "{{url_player}}"
+              ],
+              "path": [
+                "api",
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create player",
+          "request": {
+            "method": "POST",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Question Service",
+      "item": []
+    },
+    {
+      "name": "Game Engine",
+      "item": [
+        {
+          "name": "POST start game",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Content-Type is JSON\", () => {",
+                  "  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "",
+                  "pm.test(\"Game contains questions\", () => {",
+                  "  pm.expect(json).to.have.property(\"questions\");",
+                  "  pm.expect(json.questions).to.be.an(\"array\");",
+                  "  pm.expect(json.questions.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// Bonus chaînage",
+                  "pm.collectionVariables.set(\"nb_questions\", json.questions.length);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_game}}/api/games/start/{{current_player_id}}",
+              "host": [
+                "{{url_game}}"
+              ],
+              "path": [
+                "api",
+                "games",
+                "start",
+                "{{current_player_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST end game",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": {{current_player_id}},\n  \"score\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url_game}}/api/games/end",
+              "host": [
+                "{{url_game}}"
+              ],
+              "path": [
+                "api",
+                "games",
+                "end"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Score Service",
+      "item": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "current_player_id",
+      "value": ""
+    },
+    {
+      "key": "nb_questions",
+      "value": ""
+    },
+    {
+      "key": "unique_pseudo",
+      "value": ""
+    },
+    {
+      "key": "ts",
+      "value": ""
+    }
+  ]
+}
