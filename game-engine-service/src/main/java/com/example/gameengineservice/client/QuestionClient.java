@@ -1,26 +1,27 @@
 package com.example.gameengineservice.client;
 
 import com.example.gameengineservice.dto.QuestionDTO;
-import org.springframework.core.ParameterizedTypeReference;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
-
 @Service
+@RequiredArgsConstructor
 public class QuestionClient {
 
-    private final RestClient restClient;
+    private final RestClient.Builder builder;
+    private final DiscoveryClient discoveryClient;
 
-    public QuestionClient(RestClient.Builder builder) {
-        this.restClient = builder
-                .baseUrl("http://localhost:8082/api/questions")
-                .build();
+    private RestClient questionRestClient() {
+        String baseUrl = discoveryClient.getServiceUrl("question-catalog-service");
+        return builder.baseUrl(baseUrl + "/api/questions").build();
     }
 
-    public List<QuestionDTO> getAllQuestions() {
-        return restClient.get()
+    public QuestionDTO getRandomQuestion() {
+        return questionRestClient()
+                .get()
+                .uri("/random")
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<QuestionDTO>>() {});
+                .body(QuestionDTO.class);
     }
 }

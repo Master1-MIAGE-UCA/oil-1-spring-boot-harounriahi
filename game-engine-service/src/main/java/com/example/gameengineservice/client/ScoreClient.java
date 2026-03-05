@@ -1,29 +1,30 @@
 package com.example.gameengineservice.client;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
+import com.example.gameengineservice.dto.ScoreDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-@Component
+@Service
+@RequiredArgsConstructor
 public class ScoreClient {
 
-    private final RestClient restClient;
+    private final RestClient.Builder builder;
+    private final DiscoveryClient discoveryClient;
 
-    public ScoreClient(@Value("${score.service.url}") String baseUrl) {
-        this.restClient = RestClient.builder()
-                .baseUrl(baseUrl)
+    private RestClient scoreRestClient() {
+        String baseUrl = discoveryClient.getServiceUrl("score-service");
+        return builder
+                .baseUrl(baseUrl + "/api/scores")
                 .build();
     }
 
-    public void sendScore(Long playerId, int score) {
-        restClient.post()
-                .uri("/api/scores")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(new ScoreRequest(playerId, score))
+    public void saveScore(ScoreDTO scoreDTO) {
+        scoreRestClient()
+                .post()
+                .uri("/")
+                .body(scoreDTO)
                 .retrieve()
                 .toBodilessEntity();
     }
-
-    public record ScoreRequest(Long playerId, int score) {}
 }

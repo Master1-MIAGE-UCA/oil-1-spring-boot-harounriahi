@@ -1,97 +1,258 @@
-# OIL Haroun
+# OIL — Architecture Microservices
 
-Ce projet contient les microservices suivants :
+**Auteur : Haroun Riahi**
+**MIAGE1 — Groupe 2**
 
-## 1. Player Service
-
-Ce service est une application Spring Boot simple pour gérer des joueurs.
-
-### Description
-
-Player Service offre une API RESTful pour effectuer des opérations CRUD (Créer, Lire, Mettre à jour, Supprimer) sur des joueurs. Il utilise une base de données en mémoire H2 pour la persistance des données.
-
-### Technologies
-
-* **Java 21**
-* **Spring Boot 4.0.0**
-* **Spring Web MVC**
-* **Spring Data JPA**
-* **H2 Database**
-* **Lombok**
-
-### API Endpoints
-
-* **`GET /api/players`**: Récupère la liste de tous les joueurs.
-* **`GET /api/players/{id}`**: Récupère un joueur par son ID.
-* **`POST /api/players`**: Crée un nouveau joueur.
+Ce projet implémente une architecture **microservices** développée avec **Spring Boot**.
+Les services communiquent entre eux via **REST APIs** et utilisent un **service de découverte (Discovery Service)** pour localiser dynamiquement les instances disponibles.
 
 ---
 
-## 2. Question Catalog Service
+# 1. Player Service
 
-Ce service gère le catalogue de questions pour l'application.
+Ce service gère les joueurs de l'application.
 
-### Description
+## Description
 
-Question Catalog Service expose une API RESTful permettant de gérer les questions (récupération, création, mise à jour, suppression).
+Player Service expose une API REST permettant d'effectuer des opérations CRUD sur les joueurs.
+Les données sont stockées dans une **base H2 en mémoire**.
 
-### Technologies
+## Technologies
 
-* **Java**
-* **Spring Boot**
-* **Spring Web**
-* **Spring Data JPA**
+* Java 21
+* Spring Boot 4.0
+* Spring Web MVC
+* Spring Data JPA
+* H2 Database
+* Lombok
 
-### API Endpoints
+## API Endpoints
 
-Le contrôleur `QuestionController` expose les endpoints suivants sous `/api/questions` :
-
-* **`GET /api/questions`** : Récupère la liste de toutes les questions.
-* **`GET /api/questions/{id}`** : Récupère une question spécifique par son ID.
-* **`POST /api/questions`** : Crée une nouvelle question.
-* **`PUT /api/questions/{id}`** : Met à jour une question existante (remplacement complet).
-* **`PATCH /api/questions/{id}`** : Met à jour partiellement une question.
-* **`DELETE /api/questions/{id}`** : Supprime une question par son ID.
-
-### Gestion des Erreurs
-
-Le service utilise une gestion d'exception personnalisée pour retourner des codes d'état HTTP appropriés.
-
-* **`ResourceNotFoundException`** : Cette exception est levée lorsqu'une ressource demandée (comme une question par ID) n'est pas trouvée. Elle renvoie un statut HTTP **404 Not Found**.
+| Méthode | Endpoint                  | Description                   |
+| ------- | ------------------------- | ----------------------------- |
+| GET     | `/api/players`            | Récupère tous les joueurs     |
+| GET     | `/api/players/{id}`       | Récupère un joueur par ID     |
+| POST    | `/api/players`            | Crée un nouveau joueur        |
+| PATCH   | `/api/players/{id}/score` | Met à jour le score du joueur |
 
 ---
 
-## 3. Game Engine Service
+# 2. Question Catalog Service
 
-Ce microservice agit comme un orchestrateur entre les autres services.
+Ce service gère le **catalogue de questions** utilisées dans le jeu.
 
-### Description
+## Description
 
-Game Engine Service permet de démarrer une session de jeu en communiquant avec les microservices **Player Service** et **Question Catalog Service**.
-Il récupère les informations d'un joueur et une liste de questions afin de construire une session de jeu.
+Question Catalog Service expose une API REST permettant de gérer les questions.
 
-### Technologies
+## Technologies
 
-* **Java 21**
-* **Spring Boot**
-* **Spring Web**
-* **RestClient**
-* **Lombok**
+* Java
+* Spring Boot
+* Spring Web
+* Spring Data JPA
+* H2 Database
 
-### API Endpoint
+## API Endpoints
 
-* **`POST /api/games/start/{playerId}?nb=3`**
+| Méthode | Endpoint              | Description                |
+| ------- | --------------------- | -------------------------- |
+| GET     | `/api/questions`      | Liste toutes les questions |
+| GET     | `/api/questions/{id}` | Récupère une question      |
+| POST    | `/api/questions`      | Crée une question          |
+| PUT     | `/api/questions/{id}` | Remplace une question      |
+| PATCH   | `/api/questions/{id}` | Met à jour partiellement   |
+| DELETE  | `/api/questions/{id}` | Supprime une question      |
 
-Cet endpoint :
+## Gestion des erreurs
 
-1. récupère un joueur depuis **player-service**
+Le service utilise une exception personnalisée :
+
+* `ResourceNotFoundException` → retourne **HTTP 404**
+
+---
+
+# 3. Score Service
+
+Ce service stocke **l'historique des parties jouées**.
+
+## Description
+
+Score Service enregistre les scores obtenus par les joueurs à la fin d'une partie.
+
+## Technologies
+
+* Java
+* Spring Boot
+* Spring Data JPA
+* H2 Database
+
+## Endpoint
+
+| Méthode | Endpoint      | Description         |
+| ------- | ------------- | ------------------- |
+| POST    | `/api/scores` | Enregistre un score |
+
+---
+
+# 4. Game Engine Service
+
+Ce microservice agit comme **orchestrateur** entre les autres services.
+
+## Description
+
+Game Engine Service coordonne les interactions entre :
+
+* Player Service
+* Question Catalog Service
+* Score Service
+
+Il récupère les informations d'un joueur et les questions nécessaires pour créer une session de jeu.
+
+## Technologies
+
+* Java 21
+* Spring Boot
+* Spring Web
+* RestClient
+* Lombok
+
+## API Endpoint
+
+### Démarrer une partie
+
+POST `/api/games/start/{playerId}?nb=3`
+
+Cette opération :
+
+1. récupère le joueur depuis **player-service**
 2. récupère des questions depuis **question-catalog-service**
 3. crée une session de jeu
-4. retourne un JSON contenant le joueur et les questions sélectionnées.
+4. retourne les données de la partie.
+
+### Terminer une partie
+
+POST `/api/games/end`
+
+Permet d'enregistrer le score d'une partie dans **score-service**.
 
 ---
 
-## Auteur
+# 5. Discovery Service (TD7)
+
+Le **Discovery Service** agit comme un **annuaire de services** dans l'architecture.
+
+Il permet aux microservices de **se découvrir dynamiquement** sans utiliser d'URL codées en dur.
+
+## Port
+
+```
+8761
+```
+
+## Fonctionnement
+
+Chaque microservice s'enregistre automatiquement au démarrage via :
+
+POST `/api/registry`
+
+Exemple :
+
+```json
+{
+  "serviceName": "question-catalog-service",
+  "url": "http://localhost:8082"
+}
+```
+
+Pour découvrir un service :
+
+GET `/api/discovery/{serviceName}`
+
+Exemple :
+
+```
+GET /api/discovery/question-catalog-service
+```
+
+Réponse :
+
+```json
+[
+  "http://localhost:8082",
+  "http://localhost:8092"
+]
+```
+
+---
+
+# 6. Test Multi-Instance (Load Balancing)
+
+Deux instances du **question-catalog-service** ont été lancées :
+
+```
+http://localhost:8082
+http://localhost:8092
+```
+
+Le **game-engine-service** interroge le discovery service et sélectionne **aléatoirement une instance disponible**.
+
+Cela permet de répartir les requêtes entre plusieurs instances du service.
+
+---
+
+# Architecture globale
+
+```
+Client
+   |
+   v
+Game Engine Service
+   |
+   v
+Discovery Service
+   |
+   |---- Player Service
+   |
+   |---- Score Service
+   |
+   |---- Question Catalog Service (8082)
+   |
+   |---- Question Catalog Service (8092)
+```
+
+---
+
+# Lancer le projet
+
+Lancer les services dans cet ordre :
+
+1. discovery-service
+2. player-service
+3. score-service
+4. question-catalog-service (8082)
+5. question-catalog-service (8092)
+6. game-engine-service
+
+---
+
+# Exemple de test
+
+Découvrir les services :
+
+```
+curl http://localhost:8761/api/discovery/question-catalog-service
+```
+
+Démarrer une partie :
+
+```
+curl -X POST "http://localhost:8080/api/games/start/1?nb=3"
+```
+
+---
+
+# Auteur
 
 **Haroun Riahi**
-MIAGE1 GRP2
+MIAGE1 — Groupe 2
