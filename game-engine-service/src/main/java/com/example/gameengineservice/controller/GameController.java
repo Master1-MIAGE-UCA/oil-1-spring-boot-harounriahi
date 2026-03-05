@@ -19,4 +19,12 @@ public class GameController {
                              @RequestParam(defaultValue = "3") int nb) {
         return gameService.startNewGame(playerId, nb);
     }
+
+    // ✅ TD5: Fin de partie
+    @PostMapping("/end")
+    public void endGame(@RequestBody EndGameRequest request) {
+        gameService.endGame(request.playerId(), request.score());
+    }
+
+    public record EndGameRequest(Long playerId, int score) {}
 }

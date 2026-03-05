@@ -2,6 +2,7 @@ package com.example.gameengineservice.service;
 
 import com.example.gameengineservice.client.PlayerClient;
 import com.example.gameengineservice.client.QuestionClient;
+import com.example.gameengineservice.client.ScoreClient;
 import com.example.gameengineservice.dto.GameDTO;
 import com.example.gameengineservice.dto.PlayerDTO;
 import com.example.gameengineservice.dto.QuestionDTO;
@@ -15,10 +16,12 @@ public class GameService {
 
     private final PlayerClient playerClient;
     private final QuestionClient questionClient;
+    private final ScoreClient scoreClient;
 
-    public GameService(PlayerClient playerClient, QuestionClient questionClient) {
+    public GameService(PlayerClient playerClient, QuestionClient questionClient, ScoreClient scoreClient) {
         this.playerClient = playerClient;
         this.questionClient = questionClient;
+        this.scoreClient = scoreClient;
     }
 
     public GameDTO startNewGame(Long playerId, int nbQuestions) {
@@ -36,5 +39,18 @@ public class GameService {
 
         // 4) on construit la session
         return new GameDTO(UUID.randomUUID().toString(), player, selected);
+    }
+
+    /**
+     * Fin de partie : orchestre une "transaction distribuée"
+     * 1) archive la session dans score-service
+     * 2) ajoute les points au score global du joueur via player-service
+     */
+    public void endGame(Long playerId, int score) {
+        // 1) Archivage
+        scoreClient.sendScore(playerId, score);
+
+        // 2) Mise à jour joueur (doit être implémenté dans PlayerClient)
+        playerClient.updatePlayerScore(playerId, score);
     }
 }

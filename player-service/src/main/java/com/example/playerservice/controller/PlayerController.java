@@ -55,9 +55,17 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.partialUpdatePlayer(id, player));
     }
 
+    // ✅ TD5: endpoint dédié pour ajouter des points (plus simple côté client)
+    @PatchMapping("/{id}/score")
+    public ResponseEntity<Player> addScore(@PathVariable Long id, @RequestBody ScorePatchRequest req) {
+        return ResponseEntity.ok(playerService.addScore(id, req.scoreToAdd()));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlayer(@PathVariable Long id) {
         playerService.deletePlayer(id);
         return ResponseEntity.noContent().build();
     }
+
+    public record ScorePatchRequest(int scoreToAdd) {}
 }

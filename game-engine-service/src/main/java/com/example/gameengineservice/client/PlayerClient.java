@@ -1,6 +1,7 @@
 package com.example.gameengineservice.client;
 
 import com.example.gameengineservice.dto.PlayerDTO;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -15,6 +16,7 @@ public class PlayerClient {
                 .build();
     }
 
+    // récupérer un joueur
     public PlayerDTO getPlayerById(Long id) {
         return restClient.get()
                 .uri("/{id}", id)
@@ -22,4 +24,16 @@ public class PlayerClient {
                 .body(PlayerDTO.class);
     }
 
+    // ajouter des points au joueur
+    public void updatePlayerScore(Long playerId, int scoreToAdd) {
+        restClient.patch()
+                .uri("/{id}/score", playerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ScorePatchRequest(scoreToAdd))
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    // DTO utilisé pour le PATCH
+    public record ScorePatchRequest(int scoreToAdd) {}
 }

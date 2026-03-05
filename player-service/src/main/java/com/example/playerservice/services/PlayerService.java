@@ -35,6 +35,11 @@ public class PlayerService {
         }
         return playerRepository.save(player);
     }
+    public Player addScore(Long id, int scoreToAdd) {
+        Player p = findPlayerById(id);
+        p.setScore(p.getScore() + scoreToAdd);
+        return savePlayer(p);
+    }
 
     public Player updatePlayer(Long id, Player playerDetails) {
         Player player = playerRepository.findById(id)
